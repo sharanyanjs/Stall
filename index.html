@@ -139,30 +139,24 @@
             font-weight: bold;
             margin-left: 8px;
         }
-        
-        /* === CART === */
         .cart {
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
-            background: white;
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
-        }
-        
-        .cart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: var(--dark);
-        }
-        
-        .clear-cart {
+    width: 100%;
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.clear-cart {
             color: var(--coral);
             font-size: 0.9rem;
             cursor: pointer;
@@ -172,22 +166,35 @@
         .clear-cart:hover {
             text-decoration: underline;
         }
-        
-        .cart-items {
-            max-height: 120px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-        
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            animation: slideIn 0.3s ease;
-        }
-        
+.cart-items {
+    margin-bottom: 15px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.item-quantity {
+    background: var(--teal);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
+        /* === CART === */
         .remove-item {
             color: var(--coral);
             background: none;
@@ -406,7 +413,6 @@
             <div class="loading" id="trackingLoading">Loading your order status...</div>
             <div id="orderTracking"></div>
         </div>
-        
         <!-- Shopping Cart -->
         <div class="cart">
             <div class="cart-header">
@@ -682,4 +688,5 @@
     </script>
 </body>
 </html>
+
 

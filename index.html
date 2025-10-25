@@ -430,7 +430,144 @@
     <script>
         // === CONFIGURATION ===
         const API_URL = 'https://script.google.com/macros/s/AKfycbzPULsnDs6khhYOfF4SN2QGnKz52kyj3o4CF75csPe1bavZAATTOHg3togCQYpNQSNt_Q/exec';
+        // Tropic Magic Order System - Backend API
+function doGet(e) {
+  return handleRequest(e);
+}
+
+function doPost(e) {
+  return handleRequest(e);
+}
+
+function handleRequest(e) {
+  try {
+    const action = e.parameter.action;
+    
+    if (action === 'place_order') {
+      return placeOrder(e);
+    } else if (action === 'get_orders') {
+      return getOrders(e);
+    } else if (action === 'update_status') {
+      return updateStatus(e);
+    } else {
+      return createResponse({error: 'Invalid action'});
+    }
+  } catch (error) {
+    return createResponse({error: error.toString()});
+  }
+}
+
+function placeOrder(e) {
+  try {
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName('Sheet1');
+    const orderData = JSON.parse(e.postData.contents);
+    
+    // Generate order ID based on current row
+    const orderId = '#' + (sheet.getLastRow()).toString().padStart(3, '0');
+    
+    // Append to sheet - MATCHING YOUR HEADERS
+    sheet.appendRow([
+      orderId,
+      orderData.customerName, 
+      orderData.phone,
+      orderData.items.join(', '),
+      orderData.total,
+      'waiting', // initial status
+      new Date().toLocaleTimeString('en-IN'),
+      '' // completion time
+    ]);
+    
+    return createResponse({success: true, orderId: orderId});
+  } catch (error) {
+    return createResponse({error: 'Place order error: ' + error.toString()});
+  }
+}
+
+function getOrders(e) {
+  try {
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName('Sheet1');
+    const data = sheet.getDataRange().getValues();
+    
+    const orders = [];
+    // Start from row 1 (skip header row 0)
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      // Only process rows that have an OrderID
+      if (row[0] && row[0].toString().trim() !== '') {
+        orders.push({
+          id: row[0],
+          customer: row[1],
+          phone: row[2],
+          items: row[3] ? row[3].toString().split(', ') : [],
+          total: row[4] || 0,
+          status: row[5] || 'waiting',
+          orderTime: row[6] || '',
+          waitingTime: calculateWaitingTime(row[6])
+        });
+      }
+    }
+    
+    return createResponse(orders);
+  } catch (error) {
+    return createResponse({error: 'Get orders error: ' + error.toString()});
+  }
+}
+
+function updateStatus(e) {
+  try {
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName('Sheet1');
+    const data = sheet.getDataRange().getValues();
+    const orderId = e.parameter.orderId;
+    const newStatus = e.parameter.status;
+    
+    // Find and update the order (start from row 1 to skip header)
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === orderId) {
+        // Status is column F (index 5)
+        sheet.getRange(i + 1, 6).setValue(newStatus);
         
+        // If marking as completed, add completion time (column H, index 7)
+        if (newStatus === 'completed') {
+          sheet.getRange(i + 1, 8).setValue(new Date().toLocaleTimeString('en-IN'));
+        }
+        break;
+      }
+    }
+    
+    return createResponse({success: true});
+  } catch (error) {
+    return createResponse({error: 'Update status error: ' + error.toString()});
+  }
+}
+
+function calculateWaitingTime(orderTime) {
+  if (!orderTime) return '0 min';
+  
+  try {
+    const now = new Date();
+    const orderDate = new Date(orderTime);
+    
+    // If parsing fails, try manual time parsing
+    if (isNaN(orderDate)) {
+      return '0 min';
+    }
+    
+    const diffMs = now - orderDate;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    
+    return Math.max(0, diffMins) + ' min';
+  } catch (e) {
+    return '0 min';
+  }
+}
+
+function createResponse(data) {
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({
+      'Access-Control-Allow-Origin': '*'
+    });
+}
         // Cart functionality
         let cart = [];
         let total = 0;
@@ -688,6 +825,7 @@
     </script>
 </body>
 </html>
+
 
 
 

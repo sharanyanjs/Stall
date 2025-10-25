@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tropic Magic - Order & Track</title>
+    <style>
+        /* === TROPIC THEME === */
+        :root {
+            --teal: #2DD4BF;
+            --coral: #FF6B6B;
+            --sunny: #FFD166;
+            --leaf: #06D6A0;
+            --deep-blue: #118AB2;
+            --dark: #073B4C;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--teal) 0%, var(--deep-blue) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        /* === HEADER === */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tagline {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        /* === NAVIGATION === */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: 50px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: var(--coral);
+            color: white;
+        }
+        
+        /* === MENU STYLES === */
+        .menu-category {
+            margin-bottom: 25px;
+        }
+        
+        .category-title {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .item-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        
+        .item-card.highlight {
+            border-color: var(--sunny);
+            background: linear-gradient(135deg, #FFF9C4, white);
+        }
+        
+        .item-info {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .item-price {
+            font-weight: bold;
+            color: var(--deep-blue);
+            font-size: 1.1rem;
+        }
+        
+        .badge {
+            background: var(--sunny);
+            color: var(--dark);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        /* === CART === */
+        .cart {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .cart-items {
+            max-height: 120px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            color: var(--dark);
+            margin: 10px 0;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            background: var(--leaf);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkout-btn:hover {
+            background: var(--teal);
+            transform: scale(1.02);
+        }
+        
+        /* === TRACKING VIEW === */
+        .tracking-view {
+            display: none;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .order-id {
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .status-waiting { color: var(--coral); }
+        .status-preparing { color: var(--sunny); }
+        .status-ready { color: var(--leaf); }
+        .status-completed { color: var(--deep-blue); }
+        
+        /* === ADMIN VIEW === */
+        .admin-view {
+            display: none;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--deep-blue);
+        }
+        
+        .best-seller {
+            background: var(--sunny);
+            color: var(--dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🌴 Tropic Magic</div>
+            <div class="tagline">Fresh • Fast • Tropical</div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <div class="tab active" onclick="showTab('menu')">Menu</div>
+            <div class="tab" onclick="showTab('tracking')">My Order</div>
+            <div class="tab" onclick="showTab('admin')">Staff</div>
+        </div>
+        
+        <!-- Menu View -->
+        <div id="menuView" class="menu-view">
+            <!-- Mocktails -->
+            <div class="menu-category">
+                <div class="category-title">🍹 MOCKTAILS</div>
+                <div class="item-card highlight" onclick="addToCart('BTS Mocktail', 60)">
+                    <div class="item-info">
+                        <span class="item-name">BTS Mocktail ☑</span>
+                        <div class="badge">BEST SELLER</div>
+                    </div>
+                    <div class="item-price">60/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Blue Lagoon Mocktail', 40)">
+                    <div class="item-info">
+                        <span class="item-name">Blue Lagoon Mocktail</span>
+                        <div class="badge">POPULAR</div>
+                    </div>
+                    <div class="item-price">40/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Watermelon Mocktail', 40)">
+                    <div class="item-info">
+                        <span class="item-name">Watermelon Mocktail</span>
+                        <div class="badge">POPULAR</div>
+                    </div>
+                    <div class="item-price">40/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Lemon Mint Mocktail', 40)">
+                    <div class="item-info">
+                        <span class="item-name">Lemon Mint Mocktail</span>
+                        <div class="badge">POPULAR</div>
+                    </div>
+                    <div class="item-price">40/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Pine apple Mocktail', 40)">
+                    <div class="item-info">
+                        <span class="item-name">Pine apple Mocktail</span>
+                        <div class="badge">POPULAR</div>
+                    </div>
+                    <div class="item-price">40/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Strawberry Mocktail', 40)">
+                    <div class="item-info">
+                        <span class="item-name">Strawberry Mocktail</span>
+                    </div>
+                    <div class="item-price">40/-</div>
+                </div>
+                <!-- Add other mocktails -->
+            </div>
+            
+            <!-- Desserts -->
+            <div class="menu-category">
+                <div class="category-title">🍨 DESSERTS</div>
+                <div class="item-card" onclick="addToCart('Brownie Icecream', 50)">
+                    <div class="item-info">
+                        <span class="item-name">Brownie Icecream</span>
+                    </div>
+                    <div class="item-price">50/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Fruit Tart', 60)">
+                    <div class="item-info">
+                        <span class="item-name">Fruit Tart</span>
+                    </div>
+                    <div class="item-price">60/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Special Brownie', 70)">
+                    <div class="item-info">
+                        <span class="item-name">Special Brownie</span>
+                    </div>
+                    <div class="item-price">70/-</div>
+                </div>
+            </div>
+            
+            <!-- Sandwiches -->
+            <div class="menu-category">
+                <div class="category-title">🥪 SANDWICHES</div>
+                <div class="item-card" onclick="addToCart('Veg Sandwich', 30)">
+                    <div class="item-info">
+                        <span class="item-name">Veg Sandwich</span>
+                        <div class="badge">BEST SELLER</div>
+                    </div>
+                    <div class="item-price">30/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Veg Mayo Sandwich', 40)">
+                    <div class="item-info">
+                        <span class="item-name">Veg Mayo Sandwich</span>
+                    </div>
+                    <div class="item-price">40/-</div>
+                </div>
+                <div class="item-card" onclick="addToCart('Crispy Corn Sandwich', 40)">
+                    <div class="item-info">
+                        <span class="item-name">Crispy Corn Sandwich</span>
+                    </div>
+                    <div class="item-price">40/-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tracking View -->
+        <div id="trackingView" class="tracking-view">
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-id">Order #015</div>
+                    <div class="status-preparing">🟡 PREPARING</div>
+                </div>
+                <div class="order-items">
+                    <p>• BTS Mocktail</p>
+                    <p>• Veg Sandwich</p>
+                </div>
+                <div class="order-time">Ordered: 2:15 PM</div>
+            </div>
+            
+            <div class="progress-bar">
+                <!-- Progress visualization would go here -->
+            </div>
+        </div>
+        
+        <!-- Admin View -->
+        <div id="adminView" class="admin-view">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">47</div>
+                    <div>Orders Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₹2,140</div>
+                    <div>Revenue</div>
+                </div>
+            </div>
+            
+            <div class="stat-card best-seller">
+                <h4>🔥 BEST SELLERS</h4>
+                <ol style="text-align: left; margin-top: 10px;">
+                    <li>BTS Mocktail - 18 orders</li>
+                    <li>Blue Lagoon - 15 orders</li>
+                    <li>Veg Sandwich - 12 orders</li>
+                </ol>
+            </div>
+            
+            <!-- Order management would go here -->
+        </div>
+        
+        <!-- Shopping Cart -->
+        <div class="cart">
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items appear here -->
+                <div class="empty-cart">Your cart is empty</div>
+            </div>
+            <div class="cart-total" id="cartTotal">Total: ₹0</div>
+            <button class="checkout-btn" onclick="placeOrder()">Place Order & Get Order ID</button>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURATION ===
+const API_URL = 'https://script.google.com/a/macros/gprec.ac.in/s/AKfycbwVAXnaS_PrBh2kc4EeuMdH3lGX5Fxa5Q9WjKJyJWTbmCyVmJz7EjEBh58DVJtrlck/exec';// Cart functionality
+        let cart = [];
+        let total = 0;
+        
+        function addToCart(itemName, price) {
+            cart.push({ name: itemName, price: price });
+            updateCartDisplay();
+            
+            // Add visual feedback
+            event.target.style.background = 'var(--leaf)';
+            event.target.style.color = 'white';
+            setTimeout(() => {
+                event.target.style.background = '';
+                event.target.style.color = '';
+            }, 300);
+        }
+        
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+                cartTotal.textContent = 'Total: ₹0';
+                return;
+            }
+            
+            cartItems.innerHTML = '';
+            total = 0;
+            
+            cart.forEach(item => {
+                total += item.price;
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>₹${item.price}</span>
+                `;
+                cartItems.appendChild(itemElement);
+            });
+            
+            cartTotal.textContent = `Total: ₹${total}`;
+        }
+        
+        // Tab navigation
+        function showTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show selected view
+            document.getElementById('menuView').style.display = tabName === 'menu' ? 'block' : 'none';
+            document.getElementById('trackingView').style.display = tabName === 'tracking' ? 'block' : 'none';
+            document.getElementById('adminView').style.display = tabName === 'admin' ? 'block' : 'none';
+        }
+        
+        // Place order function
+        function placeOrder() {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            
+            const orderId = '#' + Math.random().toString(36).substr(2, 4).toUpperCase();
+            alert(`Order placed successfully!\n\nYour Order ID: ${orderId}\nTotal: ₹${total}\n\nShow this ID to collect your order.`);
+            
+            // Reset cart
+            cart = [];
+            updateCartDisplay();
+            
+            // Switch to tracking view
+            showTab('tracking');
+        }
+        
+        // Initialize
+        updateCartDisplay();
+    </script>
+</body>
+</html>

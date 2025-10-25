@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tropic Magic - Admin Dashboard</title>
+    <style>
+        /* === ADMIN THEME === */
+        :root {
+            --waiting: #FF6B6B;
+            --preparing: #FFD166;
+            --ready: #06D6A0;
+            --completed: #118AB2;
+            --dark: #073B4C;
+            --light: #F8F9FA;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: var(--light);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* === HEADER === */
+        .admin-header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .admin-title {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        /* === STATS GRID === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* === KANBAN BOARD === */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .status-column {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        
+        .column-header {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .waiting-header { background: var(--waiting); }
+        .preparing-header { background: var(--preparing); color: var(--dark); }
+        .ready-header { background: var(--ready); }
+        .completed-header { background: var(--completed); }
+        
+        /* === ORDER CARDS === */
+        .order-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .order-card.waiting { border-left-color: var(--waiting); }
+        .order-card.preparing { border-left-color: var(--preparing); }
+        .order-card.ready { border-left-color: var(--ready); }
+        .order-card.completed { border-left-color: var(--completed); }
+        
+        .order-id {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .order-items {
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+        
+        .order-time {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .status-btn {
+            flex: 1;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .status-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-waiting { background: var(--waiting); color: white; }
+        .btn-preparing { background: var(--preparing); color: var(--dark); }
+        .btn-ready { background: var(--ready); color: white; }
+        .btn-completed { background: var(--completed); color: white; }
+        
+        /* === BEST SELLERS === */
+        .best-sellers {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .best-sellers h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+            text-align: center;
+        }
+        
+        .seller-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .seller-rank {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        /* === NOTIFICATION === */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--ready);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1 class="admin-title">🌴 Tropic Magic - Command Center</h1>
+            <p>Live Order Management Dashboard</p>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="waitingOrders">0</div>
+                <div class="stat-label">Waiting</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="preparingOrders">0</div>
+                <div class="stat-label">Preparing</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="revenue">₹0</div>
+                <div class="stat-label">Revenue</div>
+            </div>
+        </div>
+        
+        <!-- Kanban Board -->
+        <div class="kanban-board">
+            <!-- Waiting Column -->
+            <div class="status-column">
+                <div class="column-header waiting-header">
+                    🔴 WAITING<br>
+                    <small id="waitingCount">0 orders</small>
+                </div>
+                <div id="waitingColumn" class="orders-container">
+                    <!-- Orders will appear here -->
+                </div>
+            </div>
+            
+            <!-- Preparing Column -->
+            <div class="status-column">
+                <div class="column-header preparing-header">
+                    🟡 PREPARING<br>
+                    <small id="preparingCount">0 orders</small>
+                </div>
+                <div id="preparingColumn" class="orders-container">
+                    <!-- Orders will appear here -->
+                </div>
+            </div>
+            
+            <!-- Ready Column -->
+            <div class="status-column">
+                <div class="column-header ready-header">
+                    🟢 READY<br>
+                    <small id="readyCount">0 orders</small>
+                </div>
+                <div id="readyColumn" class="orders-container">
+                    <!-- Orders will appear here -->
+                </div>
+            </div>
+            
+            <!-- Completed Column -->
+            <div class="status-column">
+                <div class="column-header completed-header">
+                    🔵 COMPLETED<br>
+                    <small id="completedCount">0 orders</small>
+                </div>
+                <div id="completedColumn" class="orders-container">
+                    <!-- Orders will appear here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Best Sellers -->
+        <div class="best-sellers">
+            <h3>🔥 LIVE BEST SELLERS</h3>
+            <div id="bestSellersList">
+                <div class="seller-item">
+                    <span><span class="seller-rank">1.</span> BTS Mocktail</span>
+                    <span>0 orders</span>
+                </div>
+                <div class="seller-item">
+                    <span><span class="seller-rank">2.</span> Blue Lagoon</span>
+                    <span>0 orders</span>
+                </div>
+                <div class="seller-item">
+                    <span><span class="seller-rank">3.</span> Veg Sandwich</span>
+                    <span>0 orders</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notification -->
+        <div class="notification" id="notification">
+            New order received!
+        </div>
+    </div>
+    <script>
+        // Sample data - This will be replaced with Google Sheets data
+        // === CONFIGURATION ===
+        const API_URL = 'https://script.google.com/a/macros/gprec.ac.in/s/AKfycbwVAXnaS_PrBh2kc4EeuMdH3lGX5Fxa5Q9WjKJyJWTbmCyVmJz7EjEBh58DVJtrlck/exec';
+        let orders = [
+            {
+                id: '#001',
+                customer: 'Rohan',
+                items: ['BTS Mocktail', 'Veg Sandwich'],
+                total: 90,
+                status: 'preparing',
+                orderTime: '2:15 PM',
+                waitingTime: '8 min'
+            },
+            {
+                id: '#002', 
+                customer: 'Priya',
+                items: ['Blue Lagoon Mocktail'],
+                total: 40,
+                status: 'waiting',
+                orderTime: '2:18 PM',
+                waitingTime: '5 min'
+            },
+            {
+                id: '#003',
+                customer: 'Amit',
+                items: ['Brownie Icecream', 'Veg Mayo Sandwich'],
+                total: 90,
+                status: 'ready',
+                orderTime: '2:10 PM', 
+                waitingTime: '13 min'
+            }
+        ];
+
+        // Update dashboard every 5 seconds
+        setInterval(updateDashboard, 5000);
+        updateDashboard();
+
+        function updateDashboard() {
+            updateOrderColumns();
+            updateStats();
+            updateBestSellers();
+        }
+
+        function updateOrderColumns() {
+            // Clear all columns
+            document.getElementById('waitingColumn').innerHTML = '';
+            document.getElementById('preparingColumn').innerHTML = '';
+            document.getElementById('readyColumn').innerHTML = '';
+            document.getElementById('completedColumn').innerHTML = '';
+
+            // Add orders to their respective columns
+            orders.forEach(order => {
+                const orderCard = createOrderCard(order);
+                document.getElementById(`${order.status}Column`).appendChild(orderCard);
+            });
+
+            // Update column counts
+            document.getElementById('waitingCount').textContent = 
+                orders.filter(o => o.status === 'waiting').length + ' orders';
+            document.getElementById('preparingCount').textContent = 
+                orders.filter(o => o.status === 'preparing').length + ' orders';
+            document.getElementById('readyCount').textContent = 
+                orders.filter(o => o.status === 'ready').length + ' orders';
+            document.getElementById('completedCount').textContent = 
+                orders.filter(o => o.status === 'completed').length + ' orders';
+        }
+
+        function createOrderCard(order) {
+            const card = document.createElement('div');
+            card.className = `order-card ${order.status}`;
+            card.innerHTML = `
+                <div class="order-id">${order.id}</div>
+                <div class="customer">${order.customer}</div>
+                <div class="order-items">
+                    ${order.items.map(item => `• ${item}`).join('<br>')}
+                </div>
+                <div class="order-time">
+                    ⏱ ${order.waitingTime} • ${order.orderTime}
+                </div>
+                <div class="order-total">₹${order.total}</div>
+                <div class="order-actions">
+                    ${order.status !== 'waiting' ? '<button class="status-btn btn-waiting" onclick="updateOrderStatus(\'' + order.id + '\', \'waiting\')">Waiting</button>' : ''}
+                    ${order.status !== 'preparing' ? '<button class="status-btn btn-preparing" onclick="updateOrderStatus(\'' + order.id + '\', \'preparing\')">Preparing</button>' : ''}
+                    ${order.status !== 'ready' ? '<button class="status-btn btn-ready" onclick="updateOrderStatus(\'' + order.id + '\', \'ready\')">Ready</button>' : ''}
+                    ${order.status !== 'completed' ? '<button class="status-btn btn-completed" onclick="updateOrderStatus(\'' + order.id + '\', \'completed\')">Completed</button>' : ''}
+                </div>
+            `;
+            return card;
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            // Find and update the order
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                updateDashboard();
+                
+                // Show notification
+                showNotification(`Order ${orderId} moved to ${newStatus}`);
+            }
+        }
+
+        function updateStats() {
+            const totalOrders = orders.length;
+            const waitingOrders = orders.filter(o => o.status === 'waiting').length;
+            const preparingOrders = orders.filter(o => o.status === 'preparing').length;
+            const revenue = orders.reduce((sum, order) => sum + order.total, 0);
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('waitingOrders').textContent = waitingOrders;
+            document.getElementById('preparingOrders').textContent = preparingOrders;
+            document.getElementById('revenue').textContent = `₹${revenue}`;
+        }
+
+        function updateBestSellers() {
+            // This would calculate from actual order data
+            // For now, using sample data
+            const bestSellers = [
+                { name: 'BTS Mocktail', count: 12 },
+                { name: 'Blue Lagoon', count: 8 },
+                { name: 'Veg Sandwich', count: 6 }
+            ];
+
+            const bestSellersList = document.getElementById('bestSellersList');
+            bestSellersList.innerHTML = bestSellers.map((item, index) => `
+                <div class="seller-item">
+                    <span><span class="seller-rank">${index + 1}.</span> ${item.name}</span>
+                    <span>${item.count} orders</span>
+                </div>
+            `).join('');
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Simulate new order for demo
+        setInterval(() => {
+            // This is just for demo - will be replaced with real Google Sheets integration
+            if (Math.random() > 0.7) { // 30% chance every 10 seconds
+                const newOrder = {
+                    id: '#' + Math.random().toString(36).substr(2, 4).toUpperCase(),
+                    customer: ['Rahul', 'Sneha', 'Karan', 'Anjali'][Math.floor(Math.random() * 4)],
+                    items: [['BTS Mocktail'], ['Blue Lagoon'], ['Veg Sandwich'], ['Brownie Icecream']][Math.floor(Math.random() * 4)],
+                    total: [40, 60, 30, 50][Math.floor(Math.random() * 4)],
+                    status: 'waiting',
+                    orderTime: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+                    waitingTime: '0 min'
+                };
+                orders.push(newOrder);
+                updateDashboard();
+                showNotification(`New order received: ${newOrder.id}`);
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

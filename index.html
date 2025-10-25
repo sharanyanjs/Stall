@@ -532,7 +532,7 @@
                 alert('Name and phone are required!');
                 return;
             }
-
+            console.log('Placing order...', { customerName, phone, cart });
             const checkoutBtn = document.getElementById('checkoutBtn');
             checkoutBtn.disabled = true;
             checkoutBtn.textContent = 'Placing Order...';
@@ -688,5 +688,6 @@
     </script>
 </body>
 </html>
+
 
 
